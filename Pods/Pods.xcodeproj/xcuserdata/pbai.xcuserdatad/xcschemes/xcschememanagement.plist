@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>Pods-Twitter-AFNetworking.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-Twitter-BDBOAuth1Manager.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-Twitter-DateTools.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-Twitter-SVPullToRefresh.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-Twitter.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>0B9D8C930591D3B6A4257331</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>5B121F8BC43DA99C7C3CA717</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9ECD906621A672B61A84914E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A6719837E1AE2415FEF4E9BF</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>C02FA301C9020D8A3E774B57</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>

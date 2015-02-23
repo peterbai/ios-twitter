@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>1F38A8F1-8AEE-44C0-9E11-C0A03774C07B</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Twitter</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>D63A70CEA5D0BA6FECCC7294ED9C27A4CEB29DB5</key>
+		<string>https://bitbucket.org/peterbai/ios-codepath-twitter.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Twitter.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>D63A70CEA5D0BA6FECCC7294ED9C27A4CEB29DB5</key>
+		<string>..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://bitbucket.org/peterbai/ios-codepath-twitter.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>D63A70CEA5D0BA6FECCC7294ED9C27A4CEB29DB5</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>D63A70CEA5D0BA6FECCC7294ED9C27A4CEB29DB5</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ios-codepath-twitter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
