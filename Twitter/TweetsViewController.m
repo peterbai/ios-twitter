@@ -15,10 +15,11 @@
 #import "ComposeViewController.h"
 #import "TweetViewController.h"
 
-@interface TweetsViewController () <UITableViewDataSource, UITableViewDelegate, TimelineTweetCellDelegate>
+@interface TweetsViewController () <UITableViewDataSource, UITableViewDelegate, TimelineTweetCellDelegate, ComposeViewControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (strong, nonatomic) NSArray *tweets;
+@property (strong, nonatomic) NSMutableArray *tweets;
+@property (strong, nonatomic) NSNumber *lowestID;
 
 @end
 
@@ -28,7 +29,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    self.tweets = [[NSMutableArray alloc] init];
+    
     // Set up tableView
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
@@ -38,13 +40,41 @@
     [self.tableView registerNib:[UINib nibWithNibName:@"TimelineTweetCell" bundle:nil] forCellReuseIdentifier:@"TimelineTweetCell"];
     [self.tableView registerNib:[UINib nibWithNibName:@"TimelineTweetCellRetweeted" bundle:nil] forCellReuseIdentifier:@"TimelineTweetCellRetweeted"];
     
+    [self.tableView addInfiniteScrollingWithActionHandler:^{
+        [self getNewTweets];
+    }];
+    
     // Set up NavigationBar
     self.title = @"Home";
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Logout" style:UIBarButtonItemStylePlain target:self action:@selector(onLogout:)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"New" style:UIBarButtonItemStylePlain target:self action:@selector(onNew)];
+    
+    UIBarButtonItem *logoutButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Logout" style:UIBarButtonItemStylePlain target:self action:@selector(onLogout:)];
+    [logoutButtonItem setTitleTextAttributes:
+     [NSDictionary dictionaryWithObjectsAndKeys:
+      [UIFont fontWithName:@"AvenirNext-Regular" size:18.0],NSFontAttributeName,
+      nil]forState:UIControlStateNormal];
+    
+    self.navigationItem.leftBarButtonItem = logoutButtonItem;
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCompose target:self action:@selector(onNew)];
+    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:85.0/255
+                                                                        green:172.0/255
+                                                                         blue:238.0/255
+                                                                        alpha:1.0];
+    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    NSDictionary *attributes = [NSDictionary
+                                dictionaryWithObjectsAndKeys:[UIFont fontWithName:@"AvenirNext-DemiBold" size:20], NSFontAttributeName,
+                                [UIColor whiteColor], NSForegroundColorAttributeName, nil];
+    
+    [self.navigationController.navigationBar setTitleTextAttributes:attributes];
+    
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
     
     [self getTimelineTweets];
     
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
 }
 
 - (void)viewDidLayoutSubviews {
@@ -85,14 +115,13 @@
 
     cell.tweet = self.tweets[indexPath.row];
     cell.delegate = self;
-//    NSLog(@"Tweet with text: %@, has favorite status: %hhd", [(Tweet *)self.tweets[indexPath.row] text],
-//          [(Tweet *)self.tweets[indexPath.row] favorited]);
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     TweetViewController *tvc = [[TweetViewController alloc] init];
     tvc.tweet = self.tweets[indexPath.row];
+    tvc.composeViewControllerdelegate = self;
     [self.navigationController pushViewController:tvc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
@@ -115,17 +144,7 @@
     }
 }
 
-// Create separators at top and bottom of tableView
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return 0.5f;
-}
-
-- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section {
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 1)];
-    view.backgroundColor = [UIColor lightGrayColor];
-    return view;
-}
-
+// Create separator at top of tableView
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     return 0.5f;
 }
@@ -141,6 +160,7 @@
 - (void)replyInvokedFromTimelineTweetCell:(TimelineTweetCell *)timelineTweetCell {
     NSLog(@"replying from timeline!");
     ComposeViewController *cvc = [[ComposeViewController alloc] init];
+    cvc.delegate = self;
     cvc.user = [User currentUser];
     cvc.inReplyToTweet = timelineTweetCell.tweet;
     UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:cvc];
@@ -157,6 +177,27 @@
             return;
         }
         NSLog(@"retweeted successfully with response: %@", responseObject);
+        timelineTweetCell.tweet.myNewRetweetedTweet = [[Tweet alloc] initWithDictionary:responseObject];
+    }];
+}
+
+- (void)removeRetweetInvokedFromTimelineTweetCell:(TimelineTweetCell *)timelineTweetCell {
+    NSLog(@"un-retweeting from timeline!");
+    
+    NSDictionary *params;
+    if (timelineTweetCell.tweet.myNewRetweetedTweet) {
+        params = @{@"id" : timelineTweetCell.tweet.myNewRetweetedTweet.tweetIDString};
+        
+    } else {
+        params = @{@"id" : timelineTweetCell.tweet.tweetIDString};
+    }
+    
+    [[TwitterClient sharedInstance] removeRetweetWithParams:params completion:^(id responseObject, NSError *error) {
+        if (error) {
+            NSLog(@"failed to remove retweet, error: %@", error);
+            return;
+        }
+        NSLog(@"removed retweet successfully with response: %@", responseObject);
     }];
 }
 
@@ -186,6 +227,14 @@
     }];
 }
 
+#pragma mark ComposeViewControllerDelegate methods
+
+- (void)composeViewController:(ComposeViewController *)composeViewController didSuccessfullyComposeTweet:(Tweet *)tweet {
+    [self.tweets insertObject:tweet atIndex:0];
+    NSLog(@"adding tweet by %@ into tableview", tweet.user.name);
+    [self.tableView reloadData];
+}
+
 #pragma mark Twitter API methods
 
 - (void)getTimelineTweets {
@@ -195,9 +244,36 @@
             return;
         }
 
-        self.tweets = tweets;
+        self.tweets = [NSMutableArray arrayWithArray:tweets];
         [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
         [self.tableView.pullToRefreshView stopAnimating];
+
+        self.lowestID = [(Tweet *)[tweets lastObject] tweetID];
+        NSLog(@"lowest ID: %@", self.lowestID);
+    }];
+}
+
+- (void)getNewTweets {
+    NSNumber *count = [NSNumber numberWithInt:20];
+    NSDictionary *params = @{@"count" : count,
+                             @"max_id" : self.lowestID};
+    
+    NSLog(@"requesting new tweets with params: %@", params);
+    [[TwitterClient sharedInstance] homeTimelineWithParams:params completion:^(NSArray *tweets, NSError *error) {
+        if (error) {
+            NSLog(@"Error retrieving new tweets: %@", error);
+            [self.tableView.infiniteScrollingView stopAnimating];
+            return;
+        }
+        
+        NSMutableArray *newTweets = [NSMutableArray arrayWithArray:tweets];
+        [newTweets removeObjectAtIndex:0];  // remove redundant tweet (max_id is inclusive)
+        [self.tweets addObjectsFromArray:newTweets];
+        
+        [self.tableView reloadData];
+        [self.tableView.infiniteScrollingView stopAnimating];
+
+        self.lowestID = [(Tweet *)[self.tweets lastObject] tweetID];
     }];
 }
 
@@ -206,8 +282,8 @@
 - (void)onNew {
     ComposeViewController *cvc = [[ComposeViewController alloc] init];
     cvc.user = [User currentUser];
+    cvc.delegate = self;
     UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:cvc];
-
     [self presentViewController:nvc animated:YES completion:nil];
 }
 

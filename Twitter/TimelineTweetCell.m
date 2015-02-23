@@ -43,22 +43,34 @@
     [super layoutSubviews];
     self.text.preferredMaxLayoutWidth = self.text.frame.size.width;
     
-    if ([self.tweet.user.userID isEqualToNumber:[User currentUser].userID]) {
+    self.retweetButton.enabled = YES;
+    
+    if ([self.tweet.user.userID isEqualToNumber:[User currentUser].userID] &&
+        !self.tweet.retweeted) {
         self.retweetButton.enabled = NO;
     }
     
     if (self.tweet.favorited) {
-        UIImage *btnImage = [UIImage imageNamed:@"DetailStar"];
+        UIImage *btnImage = [UIImage imageNamed:@"Star"];
         [self.starButton setImage:btnImage forState:UIControlStateNormal];
+        
     } else {
-        UIImage *btnImage = [UIImage imageNamed:@"DetailStarUnselected"];
+        UIImage *btnImage = [UIImage imageNamed:@"StarUnselected"];
         [self.starButton setImage:btnImage forState:UIControlStateNormal];
+    }
+    
+    if (self.tweet.retweeted) {
+        UIImage *btnImage = [UIImage imageNamed:@"RetweetTrue"];
+        [self.retweetButton setImage:btnImage forState:UIControlStateNormal];
+        
+    } else {
+        UIImage *btnImage = [UIImage imageNamed:@"Retweet"];
+        [self.retweetButton setImage:btnImage forState:UIControlStateNormal];
     }
 }
 
 - (void)prepareForReuse {
     self.profileImageView.image = nil;
-    self.profileImageView.alpha = 0;
 }
 
 #pragma mark Custom setters
@@ -76,12 +88,13 @@
         
         NSURLRequest *imageRequest = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:tweet.retweetedTweet.user.profileImageUrlBigger]];
         [self.profileImageView setImageWithURLRequest:imageRequest placeholderImage:nil success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
-            self.profileImageView.alpha = 0;
-            self.profileImageView.image = image;
-            [UIView animateWithDuration:0.3
-                             animations:^{
-                                 self.profileImageView.alpha = 1.0;
-                             }];
+            [UIView transitionWithView:self.profileImageView
+                              duration:0.3
+                               options:UIViewAnimationOptionTransitionCrossDissolve
+                            animations:^{
+                                self.profileImageView.image = image;
+                            } completion: nil];
+
         } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
             NSLog(@"Failed to retrieve profile image: %@", error);
         }];
@@ -94,12 +107,13 @@
         
         NSURLRequest *imageRequest = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:tweet.user.profileImageUrlBigger]];
         [self.profileImageView setImageWithURLRequest:imageRequest placeholderImage:nil success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
-            self.profileImageView.alpha = 0;
-            self.profileImageView.image = image;
-            [UIView animateWithDuration:0.3
-                             animations:^{
-                                 self.profileImageView.alpha = 1.0;
-                             }];
+            [UIView transitionWithView:self.profileImageView
+                              duration:0.3
+                               options:UIViewAnimationOptionTransitionCrossDissolve
+                            animations:^{
+                                self.profileImageView.image = image;
+                            } completion: nil];
+            
         } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
             NSLog(@"Failed to retrieve profile image: %@", error);
         }];
@@ -113,7 +127,7 @@
 }
 
 - (IBAction)onRetweet:(id)sender {
-    [self.delegate retweetInvokedFromTimelineTweetCell:self];
+    [self toggleRetweet];
 }
 
 - (IBAction)onFavorite:(id)sender {
@@ -121,6 +135,23 @@
 }
 
 #pragma mark private methods
+
+- (void)toggleRetweet {
+    if (self.tweet.retweeted) {
+        [self.tweet updateRetweetedToValue:NO];
+        [self.delegate removeRetweetInvokedFromTimelineTweetCell:self];
+        
+        UIImage *btnImage = [UIImage imageNamed:@"Retweet"];
+        [self.retweetButton setImage:btnImage forState:UIControlStateNormal];
+        
+    } else {
+        [self.tweet updateRetweetedToValue:YES];
+        [self.delegate retweetInvokedFromTimelineTweetCell:self];
+        
+        UIImage *btnImage = [UIImage imageNamed:@"RetweetTrue"];
+        [self.retweetButton setImage:btnImage forState:UIControlStateNormal];
+    }
+}
 
 - (void)toggleFavorite {
     if (self.tweet.favorited) {

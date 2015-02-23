@@ -34,6 +34,7 @@
 
     } else {
         NSLog(@"Not logged in");
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
         self.window.rootViewController = [[LoginViewController alloc] init];
     }
     

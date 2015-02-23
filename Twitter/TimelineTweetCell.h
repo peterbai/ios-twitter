@@ -13,8 +13,9 @@
 
 @protocol TimelineTweetCellDelegate <NSObject>
 
-- (void)retweetInvokedFromTimelineTweetCell:(TimelineTweetCell *)timelineTweetCell;
 - (void)replyInvokedFromTimelineTweetCell:(TimelineTweetCell *)timelineTweetCell;
+- (void)retweetInvokedFromTimelineTweetCell:(TimelineTweetCell *)timelineTweetCell;
+- (void)removeRetweetInvokedFromTimelineTweetCell:(TimelineTweetCell *)timelineTweetCell;
 - (void)favoriteInvokedFromTimelineTweetCell:(TimelineTweetCell *)timelineTweetCell;
 - (void)removeFavoriteInvokedFromTimelineTweetCell:(TimelineTweetCell *)timelineTweetCell;
 

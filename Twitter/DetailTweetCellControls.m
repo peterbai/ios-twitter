@@ -32,16 +32,27 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    if ([self.tweet.user.userID isEqualToNumber:[User currentUser].userID]) {
+    if ([self.tweet.user.userID isEqualToNumber:[User currentUser].userID] &&
+        !self.tweet.retweeted) {
         self.retweetButton.enabled = NO;
     }
     
     if (self.tweet.favorited) {
         UIImage *btnImage = [UIImage imageNamed:@"DetailStar"];
         [self.favoriteButton setImage:btnImage forState:UIControlStateNormal];
+        
     } else {
         UIImage *btnImage = [UIImage imageNamed:@"DetailStarUnselected"];
         [self.favoriteButton setImage:btnImage forState:UIControlStateNormal];
+    }
+    
+    if (self.tweet.retweeted) {
+        UIImage *btnImage = [UIImage imageNamed:@"DetailRetweetTrue"];
+        [self.retweetButton setImage:btnImage forState:UIControlStateNormal];
+        
+    } else {
+        UIImage *btnImage = [UIImage imageNamed:@"DetailRetweet"];
+        [self.retweetButton setImage:btnImage forState:UIControlStateNormal];
     }
 }
 
@@ -51,7 +62,7 @@
     [self.delegate replyInvokedFromDetailTweetCellControls:self];
 }
 - (IBAction)onRetweet:(id)sender {
-    [self.delegate retweetInvokedFromDetailTweetCellControls:self];
+    [self toggleRetweet];
 }
 - (IBAction)onStar:(id)sender {
     [self toggleFavorite];
@@ -59,21 +70,52 @@
 
 #pragma mark private methods
 
+- (void)toggleRetweet {
+    if (self.tweet.retweeted) {
+        if (self.tweet.retweetedTweet) {
+            [self.tweet.retweetedTweet updateRetweetedToValue:NO];
+            [self.tweet updateRetweetedToValue:NO];
+        }
+        [self.tweet updateRetweetedToValue:NO];
+        
+        [self.delegate removeRetweetInvokedFromDetailTweetCellControls:self];
+        UIImage *btnImage = [UIImage imageNamed:@"DetailRetweet"];
+        [self.retweetButton setImage:btnImage forState:UIControlStateNormal];
+
+    } else {
+        if (self.tweet.retweetedTweet) {
+            [self.tweet.retweetedTweet updateRetweetedToValue:YES];
+            [self.tweet updateRetweetedToValue:YES];
+        }
+        [self.tweet updateRetweetedToValue:YES];
+        
+        [self.delegate retweetInvokedFromDetailTweetCellControls:self];
+        UIImage *btnImage = [UIImage imageNamed:@"DetailRetweetTrue"];
+        [self.retweetButton setImage:btnImage forState:UIControlStateNormal];
+    }
+}
+
 - (void)toggleFavorite {
     if (self.tweet.favorited) {
+        
+        if (self.tweet.retweetedTweet) {
+            [self.tweet.retweetedTweet updateFavoritedToValue:NO];
+            [self.tweet updateFavoritedToValue:NO];
+        }
         [self.tweet updateFavoritedToValue:NO];
         
         UIImage *btnImage = [UIImage imageNamed:@"DetailStarUnselected"];
         [self.favoriteButton setImage:btnImage forState:UIControlStateNormal];
-        
         [self.delegate removeFavoriteInvokedFromDetailTweetCellControls:self];
         
     } else {
+        if (self.tweet.retweetedTweet) {
+            [self.tweet.retweetedTweet updateFavoritedToValue:YES];
+        }
         [self.tweet updateFavoritedToValue:YES];
         
         UIImage *btnImage = [UIImage imageNamed:@"DetailStar"];
         [self.favoriteButton setImage:btnImage forState:UIControlStateNormal];
-        
         [self.delegate favoriteInvokedFromDetailTweetCellControls:self];
     }
 }

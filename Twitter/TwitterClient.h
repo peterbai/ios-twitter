@@ -17,8 +17,11 @@
 - (void)openURL:(NSURL *)url;
 
 - (void)homeTimelineWithParams:(NSDictionary *)params completion:(void (^)(NSArray *tweets, NSError *error))completion;
+- (void)userTimelineWithParams:(NSDictionary *)params completion:(void (^)(NSArray *tweets, NSError *error))completion;
+
 - (void)postTweetWithParams:(NSDictionary *)params completion:(void (^)(id responseObject, NSError *error))completion;
 - (void)retweetWithParams:(NSDictionary *)params completion:(void (^)(id responseObject, NSError *error))completion;
+- (void)removeRetweetWithParams:(NSDictionary *)params completion:(void (^)(id responseObject, NSError *error))completion;
 - (void)favoriteWithParams:(NSDictionary *)params completion:(void (^)(id responseObject, NSError *error))completion;
 - (void)removeFavoriteWithParams:(NSDictionary *)params completion:(void (^)(id responseObject, NSError *error))completion;
 

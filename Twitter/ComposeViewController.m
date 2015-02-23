@@ -10,12 +10,18 @@
 #import <UIImageView+AFNetworking.h>
 #import "TwitterClient.h"
 
+#define MAX_LENGTH 140
+
 @interface ComposeViewController () <UITextViewDelegate, UIActionSheetDelegate>
 
 @property (weak, nonatomic) IBOutlet UIImageView *profileImage;
 @property (weak, nonatomic) IBOutlet UILabel *userLabel;
 @property (weak, nonatomic) IBOutlet UILabel *screennameLabel;
 @property (weak, nonatomic) IBOutlet UITextView *message;
+
+@property (strong, nonatomic) IBOutlet UIView *submitBarButtonItemView;
+@property (weak, nonatomic) IBOutlet UILabel *characterCounter;
+@property (weak, nonatomic) IBOutlet UIButton *tweetButton;
 
 @end
 
@@ -25,11 +31,15 @@
     [super viewDidLoad];
 
     // Configure navigationBar
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemStop target:self action:@selector(onCancel)];
+
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.submitBarButtonItemView];
+    self.tweetButton.enabled = NO;
+    self.tweetButton.alpha = 0.5f;
     
-    self.title = @"Compose";
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(onCancel)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Tweet" style:UIBarButtonItemStylePlain target:self action:@selector(onTweet)];
-    self.navigationItem.rightBarButtonItem.enabled = NO;
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    self.characterCounter.text = [NSString stringWithFormat:@"%d", MAX_LENGTH];
     
     [self loadUserDataIntoView];
     [self.message becomeFirstResponder];
@@ -53,15 +63,20 @@
     NSString* textWithoutLinebreaks = [textView.text stringByReplacingOccurrencesOfString:@"\n" withString:@""];
     textView.text = textWithoutLinebreaks;
     
+    int inputtedCharacters = textView.text.length;
+    int remainingCharacters = MAX_LENGTH - inputtedCharacters;
+    self.characterCounter.text = [NSString stringWithFormat:@"%d", remainingCharacters];
+    
     if (textView.text.length > 0) {
-        self.navigationItem.rightBarButtonItem.enabled = YES;
+        self.tweetButton.enabled = YES;
+        self.tweetButton.alpha = 1.0f;
     
     } else {
-        self.navigationItem.rightBarButtonItem.enabled = NO;
+        self.tweetButton.enabled = NO;
+        self.tweetButton.alpha = 0.5f;
     }
 }
 
-#define MAX_LENGTH 160
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     NSUInteger newLength = (textView.text.length - range.length) + text.length;
     
@@ -140,9 +155,18 @@
         }
 
         NSLog(@"posted tweet with response: %@", responseObject);
+        Tweet *postedTweet = [[Tweet alloc] initWithDictionary:responseObject];
+        [self.delegate composeViewController:self didSuccessfullyComposeTweet:postedTweet];
+        
         [self.message endEditing:YES];
         [self dismissViewControllerAnimated:YES completion:nil];
     }];
+}
+
+#pragma mark Actions
+
+- (IBAction)onTweetButtonTapped:(id)sender {
+    [self onTweet];
 }
 
 @end

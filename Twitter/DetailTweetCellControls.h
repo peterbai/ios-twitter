@@ -13,8 +13,9 @@
 
 @protocol DetailTweetCellControlsDelegate <NSObject>
 
-- (void)retweetInvokedFromDetailTweetCellControls:(DetailTweetCellControls *)detailCellControls;
 - (void)replyInvokedFromDetailTweetCellControls:(DetailTweetCellControls *)detailCellControls;
+- (void)retweetInvokedFromDetailTweetCellControls:(DetailTweetCellControls *)detailCellControls;
+- (void)removeRetweetInvokedFromDetailTweetCellControls:(DetailTweetCellControls *)detailCellControls;
 - (void)favoriteInvokedFromDetailTweetCellControls:(DetailTweetCellControls *)detailCellControls;
 - (void)removeFavoriteInvokedFromDetailTweetCellControls:(DetailTweetCellControls *)detailCellControls;
 

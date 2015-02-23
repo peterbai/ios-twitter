@@ -13,18 +13,9 @@
 #import "DetailTweetCellControls.h"
 #import "ComposeViewController.h"
 
-@class TweetViewController;
-
-@protocol TweetViewControllerDelegate <NSObject>
-
-- (void)tweetViewController:(TweetViewController *)tweetViewController didSetFavoriteToValue:(BOOL)value forTweet:(Tweet *)tweet;
-
-@end
-
-@interface TweetViewController () <UITableViewDataSource, UITableViewDelegate, DetailTweetCellControlsDelegate>
+@interface TweetViewController () <UITableViewDataSource, UITableViewDelegate, DetailTweetCellControlsDelegate, ComposeViewControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (strong, nonatomic) id<TweetViewControllerDelegate> delegate;
 
 @end
 
@@ -45,6 +36,10 @@
     
     self.tableView.estimatedRowHeight = 100;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -105,6 +100,7 @@
 - (void)replyInvokedFromDetailTweetCellControls:(DetailTweetCellControls *)detailCellControls {
     NSLog(@"replying!");
     ComposeViewController *cvc = [[ComposeViewController alloc] init];
+    cvc.delegate = self.composeViewControllerdelegate;
     cvc.user = [User currentUser];
     cvc.inReplyToTweet = self.tweet;
     UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:cvc];
@@ -120,8 +116,32 @@
             NSLog(@"failed to retweet, error: %@", error);
             return;
         }
+        
         NSLog(@"retweeted successfully with response: %@", responseObject);
+        self.tweet.myNewRetweetedTweet = [[Tweet alloc] initWithDictionary:responseObject];
     }];
+    [self.tableView reloadData];
+}
+
+- (void)removeRetweetInvokedFromDetailTweetCellControls:(DetailTweetCellControls *)detailCellControls {
+    NSLog(@"un-retweeting!");
+
+    NSDictionary *params;
+    if (self.tweet.myNewRetweetedTweet) {
+        params = @{@"id" : self.tweet.myNewRetweetedTweet.tweetIDString};
+        
+    } else {
+        params = @{@"id" : self.tweet.tweetIDString};
+    }
+    
+    [[TwitterClient sharedInstance] removeRetweetWithParams:params completion:^(id responseObject, NSError *error) {
+        if (error) {
+            NSLog(@"failed to remove retweet, error: %@", error);
+            return;
+        }
+        NSLog(@"removed retweet successfully with response: %@", responseObject);
+    }];
+    [self.tableView reloadData];
 }
 
 - (void)favoriteInvokedFromDetailTweetCellControls:(DetailTweetCellControls *)detailCellControls {
@@ -150,6 +170,12 @@
         NSLog(@"un-favorited successfully with response: %@", responseObject);
     }];
     [self.tableView reloadData];
+}
+
+#pragma mark ComposeViewControllerDelegate methods
+
+- (void)composeViewController:(ComposeViewController *)composeViewController didSuccessfullyComposeTweet:(Tweet *)tweet {
+    
 }
 
 @end

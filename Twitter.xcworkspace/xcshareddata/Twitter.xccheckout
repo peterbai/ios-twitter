@@ -12,20 +12,24 @@
 	<dict>
 		<key>D63A70CEA5D0BA6FECCC7294ED9C27A4CEB29DB5</key>
 		<string>https://bitbucket.org/peterbai/ios-codepath-twitter.git</string>
+		<key>DAE5A60F1E728F68F906C1DCF7C0D297229E4C21</key>
+		<string>https://github.com/peterbai/ios-twitter.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Twitter.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>D63A70CEA5D0BA6FECCC7294ED9C27A4CEB29DB5</key>
+		<string>../../ios-codepath-twitter</string>
+		<key>DAE5A60F1E728F68F906C1DCF7C0D297229E4C21</key>
 		<string>..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://bitbucket.org/peterbai/ios-codepath-twitter.git</string>
+	<string>https://github.com/peterbai/ios-twitter.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>D63A70CEA5D0BA6FECCC7294ED9C27A4CEB29DB5</string>
+	<string>DAE5A60F1E728F68F906C1DCF7C0D297229E4C21</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
@@ -35,6 +39,14 @@
 			<string>D63A70CEA5D0BA6FECCC7294ED9C27A4CEB29DB5</string>
 			<key>IDESourceControlWCCName</key>
 			<string>ios-codepath-twitter</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>DAE5A60F1E728F68F906C1DCF7C0D297229E4C21</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ios-twitter</string>
 		</dict>
 	</array>
 </dict>

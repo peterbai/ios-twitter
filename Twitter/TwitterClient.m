@@ -103,6 +103,23 @@ NSString * const kTwitterBaseUrl = @"https://api.twitter.com";
     }];
 }
 
+- (void)userTimelineWithParams:(NSDictionary *)params completion:(void (^)(NSArray *tweets, NSError *error))completion {
+    [self GET:@"1.1/statuses/user_timeline.json" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+//        NSLog(@"%@", responseObject);
+        
+        if ([responseObject isKindOfClass:[NSArray class]]){
+            NSArray *tweets = [Tweet tweetsWithArray:responseObject];
+            completion(tweets, nil);
+            
+        } else {
+            NSLog(@"response was not an array: %@", responseObject);
+        }
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+}
+
 - (void)postTweetWithParams:(NSDictionary *)params completion:(void (^)(id responseObject, NSError *error))completion {
     [self POST:@"1.1/statuses/update.json" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
@@ -116,6 +133,17 @@ NSString * const kTwitterBaseUrl = @"https://api.twitter.com";
     NSString *tweetID = params[@"id"];
     
     [self POST:[NSString stringWithFormat:@"1.1/statuses/retweet/%@.json", tweetID] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        completion(responseObject, nil);
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        completion(nil, error);
+    }];
+}
+
+- (void)removeRetweetWithParams:(NSDictionary *)params completion:(void (^)(id responseObject, NSError *error))completion {
+    NSString *tweetID = params[@"id"];
+    
+    [self POST:[NSString stringWithFormat:@"1.1/statuses/destroy/%@.json", tweetID] parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
         completion(responseObject, nil);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

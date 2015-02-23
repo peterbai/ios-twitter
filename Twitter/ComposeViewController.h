@@ -10,9 +10,18 @@
 #import "User.h"
 #import "Tweet.h"
 
+@class ComposeViewController;
+
+@protocol ComposeViewControllerDelegate <NSObject>
+
+- (void)composeViewController:(ComposeViewController *)composeViewController didSuccessfullyComposeTweet:(Tweet *)tweet;
+
+@end
+
 @interface ComposeViewController : UIViewController
 
 @property (strong, nonatomic) User *user;
-@property (nonatomic, strong) Tweet *inReplyToTweet;
+@property (strong, nonatomic) Tweet *inReplyToTweet;
+@property (strong, nonatomic) id<ComposeViewControllerDelegate> delegate;
 
 @end

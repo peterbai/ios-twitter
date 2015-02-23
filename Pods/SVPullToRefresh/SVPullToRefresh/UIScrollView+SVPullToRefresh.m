@@ -71,7 +71,6 @@ static char UIScrollViewPullToRefreshView;
         [self addSubview:view];
         
         view.originalTopInset = self.contentInset.top;
-        NSLog(@"detected content inset: %f", view.originalTopInset);
         self.pullToRefreshView = view;
         self.showsPullToRefresh = YES;
     }

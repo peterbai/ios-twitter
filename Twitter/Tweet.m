@@ -17,6 +17,7 @@
         self.user = [[User alloc] initWithDictionary:dictionary[@"user"]];
         self.text = dictionary[@"text"];
         self.tweetIDString = dictionary[@"id"];
+        self.tweetID = dictionary[@"id"];
         
         NSString *createdAtString = dictionary[@"created_at"];
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -26,6 +27,7 @@
         self.numberOfFavorites = @([dictionary[@"favorite_count"] intValue]);
         self.numberOfRetweets = @([dictionary[@"retweet_count"] intValue]);
         self.favorited = [dictionary[@"favorited"] boolValue];
+        self.retweeted = [dictionary[@"retweeted"] boolValue];
         
         if (dictionary[@"retweeted_status"]) {
             self.retweetedTweet = [[Tweet alloc] initWithDictionary: dictionary[@"retweeted_status"]];
@@ -57,5 +59,18 @@
         self.numberOfFavorites = newNumberOfFavorites;
     }
 }
+
+- (void)updateRetweetedToValue:(BOOL)retweeted {
+    self.retweeted = retweeted;
+    if (retweeted) {
+        NSNumber *newNumberOfRetweets = [NSNumber numberWithInt:[self.numberOfRetweets intValue] + 1];
+        self.numberOfRetweets = newNumberOfRetweets;
+
+    } else if (self.numberOfRetweets.integerValue > 0) {
+        NSNumber *newNumberOfRetweets = [NSNumber numberWithInt:[self.numberOfRetweets intValue] - 1];
+        self.numberOfRetweets = newNumberOfRetweets;
+    }
+}
+
 
 @end
